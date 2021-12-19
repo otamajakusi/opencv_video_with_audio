@@ -12,7 +12,9 @@ def main(file):
         ret, frame = cap.read()
         if not ret:
             break
-        player.get_frame(show=False)
+        _, val = player.get_frame(show=False)
+        if val == 'eof':
+            break
 
         cv2.imshow(file, frame)
 
