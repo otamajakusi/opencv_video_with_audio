@@ -92,9 +92,20 @@ if __name__ == "__main__":
     import argparse
     from distutils.util import strtobool
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("--video", required=True)
-    parser.add_argument("--audio")
-    parser.add_argument("--use-pyaudio", default='yes')
+    parser.add_argument(
+        "--audio",
+        help="`.wav` file.\n"
+        "`.wav` file can be retrieved from video stream by:\n"
+        "ffmpeg -i my_video.mp4 -vn -f wav my_audio.wav",
+        required=True,
+    )
+    parser.add_argument(
+        "--use-pyaudio",
+        help="Use pyadio or ffpyplayer. default pyaudio.\n"
+        "If this option is set as false, the same file can be specified for video and audio.",
+        default="yes",
+    )
     args = parser.parse_args()
-    main(args.video, args.audio if args.audio else args.video, strtobool(args.use_pyaudio))
+    main(args.video, args.audio, strtobool(args.use_pyaudio))
