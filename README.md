@@ -3,7 +3,7 @@ opencv video with audio play
 
 ## usage
 
-```python
+```sh
 usage: video_with_audio.py [-h] --video VIDEO --audio AUDIO [--use-pyaudio USE_PYAUDIO]
 
 optional arguments:
