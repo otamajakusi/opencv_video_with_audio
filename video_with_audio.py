@@ -15,16 +15,16 @@ class WithPyAudio:
     def __init__(self, audio_file):
         wf = wave.open(audio_file, "rb")
         p = pyaudio.PyAudio()
-        stream = p.open(
+
+        self.wf = wf
+        self.p = p
+        self.stream = p.open(
             format=p.get_format_from_width(wf.getsampwidth()),
             channels=wf.getnchannels(),
             rate=wf.getframerate(),
             output=True,
             stream_callback=self._stream_cb,
         )
-        self.wf = wf
-        self.p = p
-        self.stream = stream
 
     def get_frame(self):
         if not self.stream.is_active():
@@ -58,11 +58,14 @@ class WithMediaPlayer:
             self.player = None
 
 
-def main(video_file, audio_file):
+def main(video_file, audio_file, use_pyaudio=True):
+    print(f"{video_file=},{audio_file=},{use_pyaudio=}")
     cap = cv2.VideoCapture(video_file)
 
-    # player = WithMediaPlayer(audio_file)
-    player = WithPyAudio(audio_file)
+    if use_pyaudio:
+        player = WithPyAudio(audio_file)
+    else:
+        player = WithMediaPlayer(audio_file)
     start_time = time.time()
 
     while cap.isOpened():
@@ -87,9 +90,11 @@ def main(video_file, audio_file):
 
 if __name__ == "__main__":
     import argparse
+    from distutils.util import strtobool
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--video", required=True)
     parser.add_argument("--audio")
+    parser.add_argument("--use-pyaudio", default='yes')
     args = parser.parse_args()
-    main(args.video, args.audio if args.audio else args.video)
+    main(args.video, args.audio if args.audio else args.video, strtobool(args.use_pyaudio))
