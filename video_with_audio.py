@@ -4,20 +4,24 @@ import time
 # for WithPyAudio
 import pyaudio
 import wave
+from audio_data_mixin import AudioDataMixin
 
 # for WithMediaPlayer
 from ffpyplayer.player import MediaPlayer
 
 
-class WithPyAudio:
+class WithPyAudio(AudioDataMixin):
     # https://people.csail.mit.edu/hubert/pyaudio/docs/#example-callback-mode-audio-i-o
 
     def __init__(self, audio_file):
+        super().__init__()
         wf = wave.open(audio_file, "rb")
         p = pyaudio.PyAudio()
 
         self.wf = wf
         self.p = p
+        print(f"{wf.getsampwidth()=},{wf.getnchannels()=},{wf.getframerate()=}")
+
         self.stream = p.open(
             format=p.get_format_from_width(wf.getsampwidth()),
             channels=wf.getnchannels(),
@@ -39,6 +43,11 @@ class WithPyAudio:
 
     def _stream_cb(self, in_data, frame_count, time_info, status):
         data = self.wf.readframes(frame_count)
+        if self.process_audio:  # mixin
+            wf = self.wf
+            self.process_audio(
+                data[:], wf.getsampwidth(), wf.getnchannels(), wf.getframerate()
+            )
         return (data, pyaudio.paContinue)
 
 
